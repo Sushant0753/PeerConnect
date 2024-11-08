@@ -13,7 +13,7 @@ export const SocketProvider = (props) => {
       ? process.env.REACT_APP_SOCKET_URL_PRODUCTION
       : process.env.REACT_APP_SOCKET_URL;
 
-  const socket = useMemo(() => io(socketURL), [socketURL]);
+  const socket = useMemo(() => io(socketURL, { transports: ['websocket'] }), [socketURL]);
 
   return (
     <SocketContext.Provider value={{ socket }}>
