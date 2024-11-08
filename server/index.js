@@ -49,8 +49,6 @@ module.exports = (req, res) => {
     server.emit('request', req, res);
 };
 
-if (!process.env.VERCEL) {
-    server.listen(8000, () => {
-        console.log('Socket.io server is running on port 8000');
-    });
-}
+server.listen(process.env.PORT || 8000, () => {
+    console.log(`Socket.io server is running on port ${process.env.PORT || 8000}`);
+})
