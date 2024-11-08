@@ -7,9 +7,17 @@ export const useSocket = () =>{
     return useContext(SocketContext);
 };
 
-
 export const SocketProvider = (props) =>{
-    const socket = useMemo(()=> io("https://peer-connect-three.vercel.app/"), []);
+    const socketUrl = useMemo(() => {
+        if (process.env.NODE_ENV === 'production') {
+            return process.env.REACT_APP_SOCKET_URL_PRODUCTION;
+        } else {
+            return process.env.REACT_APP_SOCKET_URL || 'http://localhost:8000';
+        }
+    }, []);
+
+    const socket = useMemo(() => io(socketUrl), [socketUrl]);
+
     return(
         <SocketContext.Provider value={{socket}}>
             {props.children}
