@@ -8,7 +8,7 @@ const server = http.createServer((req, res) => {
 
 const io = new Server(server, {
     cors: {
-        origin: '*',
+        origin: ["https://peer-connect-three.vercel.app/"],
         methods: ["GET", "POST"]
     }
 });
