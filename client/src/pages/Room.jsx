@@ -12,10 +12,12 @@ const RoomPage = () => {
     const [isVideoHidden, setIsVideoHidden] = useState(false);
     const [callEstablished, setCallEstablished] = useState(false);
     const [streamSent, setStreamSent] = useState(false);
+    const [isDisconnected, setIsDisconnected] = useState(false);
 
   const handleNewUserJoined = useCallback(({email, id}) =>{
     console.log(`Email ${email} joined the room`);
-    setRemoteSocketId(id)
+    setRemoteSocketId(id);
+    setIsDisconnected(false);
   }, [])
 
   const handleCallUser = useCallback( async()=> {
@@ -25,6 +27,7 @@ const RoomPage = () => {
     const offer = await peer.getOffer();
     socket.emit("user-call", {to: remoteSocketId, offer});
     setMyStream(stream);
+    setIsDisconnected(false);
   }, [remoteSocketId, socket])
 
   const handleIncomingCall = useCallback(async ({from, offer})=> {
@@ -33,6 +36,7 @@ const RoomPage = () => {
       audio: true, video: true
     });
     setMyStream(stream);
+    setIsDisconnected(false);
     console.log(`Incoming Call`, from, offer);
     const ans = await peer.getAnswer(offer);
     socket.emit("call-accepted", {to: from, ans});
@@ -90,6 +94,7 @@ const RoomPage = () => {
     setRemoteSocketId(null);
     setStreamSent(false);
     setCallEstablished(false);
+    setIsDisconnected(true);
   }, [myStream, remoteStream, remoteSocketId, socket]);
 
   useEffect(()=>{
@@ -144,7 +149,14 @@ const RoomPage = () => {
               </div>
             ) : (
               <div className="text-white text-xl text-center">
-                Waiting for connection...
+                {isDisconnected ? (
+                  <div className="space-y-2">
+                    <p className="text-red-500">Call Disconnected</p>
+                    <p className="text-sm text-gray-400">The call has ended</p>
+                  </div>
+                ) : (
+                  "Waiting for connection..."
+                )}
               </div>
             )}
           </div>
