@@ -11,6 +11,7 @@ const RoomPage = () => {
     const [isMuted, setIsMuted] = useState(false);
     const [isVideoHidden, setIsVideoHidden] = useState(false);
     const [callEstablished, setCallEstablished] = useState(false);
+    const [streamSent, setStreamSent] = useState(false);
 
   const handleNewUserJoined = useCallback(({email, id}) =>{
     console.log(`Email ${email} joined the room`);
@@ -37,11 +38,11 @@ const RoomPage = () => {
     socket.emit("call-accepted", {to: from, ans});
   }, [socket])
 
-
   const sendStreams = useCallback(() => {
     for (const track of myStream.getTracks()){
       peer.peer.addTrack(track, myStream);
     }
+    setStreamSent(true);
   }, [myStream]);
 
   const handleCallAccepted = useCallback(({from, ans})=> {
@@ -75,9 +76,7 @@ const RoomPage = () => {
     setIsVideoHidden(!isVideoHidden);
   }, [isVideoHidden, myStream]);
 
-
   const handleCallEnd = useCallback(() => {
-    // End the call and disconnect
     if (myStream) {
       myStream.getTracks().forEach(track => track.stop());
     }
@@ -89,7 +88,9 @@ const RoomPage = () => {
     setMyStream(null);
     setRemoteStream(null);
     setRemoteSocketId(null);
-  }, [myStream, remoteStream, remoteSocketId, socket, peer.peer]);
+    setStreamSent(false);
+    setCallEstablished(false);
+  }, [myStream, remoteStream, remoteSocketId, socket]);
 
   useEffect(()=>{
     peer.peer.addEventListener('negotiationneeded', handleNegoNeeded);
@@ -121,28 +122,31 @@ const RoomPage = () => {
     }
   }, [socket, handleNewUserJoined, handleIncomingCall, handleCallAccepted, handleIncomingNego, handleNegoFinal]);
 
-
   return (
-    <div className="flex flex-col h-screen bg-gray-900">
+    <div className="flex flex-col min-h-screen bg-gray-900">
       {/* Main content */}
-      <div className="flex-1 relative overflow-hidden">
-        {/* Remote Stream */}
-        {remoteStream && (
-          <div className="h-full w-full">
-            <ReactPlayer
-              playing
-              height="100%"
-              width="100%"
-              url={remoteStream}
-              style={{ transform: 'scaleX(-1)' }}
-              className="object-cover"
-            />
-          </div>
-        )}
+      <div className="flex-1 relative overflow-hidden p-4">
+        <div className="h-full w-full flex items-center justify-center">
+          {/* Remote Stream */}
+          {remoteStream ? (
+            <div className="w-full h-full max-w-6xl mx-auto aspect-video">
+              <ReactPlayer
+                playing
+                height="100%"
+                width="100%"
+                url={remoteStream}
+                style={{ transform: 'scaleX(-1)' }}
+                className="object-cover rounded-lg"
+              />
+            </div>
+          ) : (
+            <div className="text-white text-xl">Waiting for connection...</div>
+          )}
+        </div>
         
         {/* My Stream (Picture-in-Picture) */}
         {myStream && (
-          <div className="absolute bottom-4 right-4 w-72 h-48 rounded-lg overflow-hidden shadow-lg">
+          <div className="absolute bottom-4 right-4 w-1/4 max-w-xs min-w-48 aspect-video rounded-lg overflow-hidden shadow-lg">
             <ReactPlayer
               playing
               height="100%"
@@ -156,13 +160,36 @@ const RoomPage = () => {
       </div>
 
       {/* Control Bar */}
-      <div className="bg-black/50 backdrop-blur-sm py-4">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-center space-x-8">
+      <div className="bg-black/50 backdrop-blur-sm py-4 px-4 md:px-0">
+        <div className="container mx-auto">
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            {/* Connection Controls */}
+            {!callEstablished && !streamSent && (
+              <>
+                {myStream && (
+                  <button
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white transition-colors"
+                    onClick={sendStreams}
+                  >
+                    Send Stream
+                  </button>
+                )}
+                {remoteSocketId && !myStream && (
+                  <button
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white transition-colors"
+                    onClick={handleCallUser}
+                  >
+                    Call
+                  </button>
+                )}
+              </>
+            )}
+
             {/* Video Toggle */}
             <button
               className="p-3 rounded-full bg-gray-700 hover:bg-gray-600 focus:outline-none transition-colors"
               onClick={handleHideVideo}
+              disabled={!myStream}
             >
               {isVideoHidden ? (
                 <svg className="h-6 w-6 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -181,6 +208,7 @@ const RoomPage = () => {
             <button
               className="p-3 rounded-full bg-gray-700 hover:bg-gray-600 focus:outline-none transition-colors"
               onClick={handleMuteAudio}
+              disabled={!myStream}
             >
               {isMuted ? (
                 <svg className="h-6 w-6 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -196,32 +224,11 @@ const RoomPage = () => {
               )}
             </button>
 
-            {/* Connection Controls */}
-            {!callEstablished && (
-              <>
-                {myStream && (
-                  <button
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white transition-colors"
-                    onClick={sendStreams}
-                  >
-                    Send Stream
-                  </button>
-                )}
-                {remoteSocketId && (
-                  <button
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white transition-colors"
-                    onClick={handleCallUser}
-                  >
-                    Call
-                  </button>
-                )}
-              </>
-            )}
-
             {/* Leave Call */}
             <button
               className="p-3 rounded-full bg-red-600 hover:bg-red-500 focus:outline-none transition-colors"
               onClick={handleCallEnd}
+              disabled={!myStream}
             >
               <svg className="h-6 w-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.42 19.42 0 0 1-3.33-2.67m-2.67-3.34a19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91" />
