@@ -1,15 +1,19 @@
-const { Server } = require('socket.io');
+require('dotenv').config();
+const express = require('express');
 const http = require('http');
+const cors = require('cors');
+const { Server } = require('socket.io');
 
-const server = http.createServer((req, res) => {
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end(`Socket.io server is running on port ${process.env.PORT || 8000}`);
-});
+const app = express();
+app.use(cors());
+
+const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: {
-        origin: ["https://peer-connect-1otf.vercel.app/socket.io/"],
-        withCredentials : true
+        origin: ["https://peer-connect-1otf.vercel.app", "http://localhost:5173"],
+        methods: ["GET", "POST"],
+        credentials: true
     }
 });
 
@@ -17,7 +21,8 @@ const emailToSocketMapping = new Map();
 const socketToEmailMapping = new Map();
 
 io.on("connection", (socket) => {
-    console.log("new connection");
+    console.log("New connection:", socket.id);
+    
     socket.on("join-room", (data) => {
         const { roomId, email } = data;
         console.log("User", email, "Joined Room", roomId);
@@ -45,10 +50,12 @@ io.on("connection", (socket) => {
     });
 });
 
-module.exports = (req, res) => {
-    server.emit('request', req, res);
-};
+// Basic health check route
+app.get('/', (req, res) => {
+    res.send('WebRTC Server is running');
+});
 
-server.listen(process.env.PORT || 8000, () => {
-    console.log(`Socket.io server is running on port ${process.env.PORT || 8000}`);
-})
+const PORT = process.env.PORT || 8000;
+server.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
