@@ -10,6 +10,23 @@ class PeerService {
             ],
           },
         ],
+        sdpSemantics: 'unified-plan',
+        rtcAudioJitter: {
+        initial_delay: 50
+        },
+        bundlePolicy: 'max-bundle',
+        rtcpMuxPolicy: 'require',
+        // Audio processing
+        audio: {
+          echoCancellation: {exact: true},
+          noiseSuppression: {exact: true},
+          autoGainControl: {exact: true},
+          googEchoCancellation: {exact: true},
+          googAutoGainControl: {exact: true},
+          googNoiseSuppression: {exact: true},
+          googHighpassFilter: {exact: true},
+          googTypingNoiseDetection: {exact: true}
+        }
       });
     }
   }
@@ -38,5 +55,13 @@ class PeerService {
   }
 
 }
+const stream = await navigator.mediaDevices.getUserMedia({
+  audio: {
+    echoCancellation: true,
+    noiseSuppression: true,
+    autoGainControl: true
+  },
+  video: true
+});
 
 export default new PeerService();
