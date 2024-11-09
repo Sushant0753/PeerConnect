@@ -123,104 +123,114 @@ const RoomPage = () => {
 
 
   return (
-    <div className="flex h-screen bg-gray-900 text-white">
-      <div className="flex-1 px-4">
+    <div className="flex flex-col h-screen bg-gray-900">
+      {/* Main content */}
+      <div className="flex-1 relative overflow-hidden">
+        {/* Remote Stream */}
         {remoteStream && (
-          <div className="shadow-lg">
-            {/* <h2 className="text-xl mb-4">Remote User</h2> */}
-            <div className="h-screen p-4 rounded-lg">
-              <ReactPlayer
-                playing
-                height="100%"
-                width="100%"
-                url={remoteStream}
-                style={{ transform: 'scaleX(-1)' }}
-              />
-            </div>
+          <div className="h-full w-full">
+            <ReactPlayer
+              playing
+              height="100%"
+              width="100%"
+              url={remoteStream}
+              style={{ transform: 'scaleX(-1)' }}
+              className="object-cover"
+            />
+          </div>
+        )}
+        
+        {/* My Stream (Picture-in-Picture) */}
+        {myStream && (
+          <div className="absolute bottom-4 right-4 w-72 h-48 rounded-lg overflow-hidden shadow-lg">
+            <ReactPlayer
+              playing
+              height="100%"
+              width="100%"
+              url={myStream}
+              style={{ transform: 'scaleX(-1)' }}
+              className="object-cover"
+            />
           </div>
         )}
       </div>
-      <div className="w-96 bg-gray-800 p-4 space-y-4">
-        <h1 className="text-2xl">Room Page</h1>
-        <div className="text-lg">
-          {remoteSocketId ? 'Connected' : 'No one in Room'}
-        </div>
-        {myStream && (
-          <div className="">
-            {/* <h2 className="text-xl mb-4">My Stream</h2> */}
-            <div className="overflow-x-auto">
-              <ReactPlayer
-                playing
-                height="200px"
-                width="350px"
-                url={myStream}
-                style={{ transform: 'scaleX(-1)' }}
-              />
-            </div>
-            <div className="flex justify-center mt-4 space-x-4">
-              <button
-                className="p-2 rounded-full bg-gray-600 hover:bg-gray-500 focus:outline-none"
-                onClick={handleMuteAudio}
-              >
-                {isMuted ? (
-                    <svg class="h-8 w-8 text-red-500"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round">  <line x1="1" y1="1" x2="23" y2="23" />  <path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6" />  <path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23" />  <line x1="12" y1="19" x2="12" y2="23" />  <line x1="8" y1="23" x2="16" y2="23" /></svg>
-                ) : (
-                    <svg class="h-8 w-8 text-blue-500"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round">  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />  <path d="M19 10v2a7 7 0 0 1-14 0v-2" />  <line x1="12" y1="19" x2="12" y2="23" />  <line x1="8" y1="23" x2="16" y2="23" /></svg>
-                    
-                )}
-              </button>
-              <button
-                className="p-2 rounded-full bg-gray-600 hover:bg-gray-500 focus:outline-none"
-                onClick={handleHideVideo}
-              >
-                {isVideoHidden ? (
-                    <svg class="h-8 w-8 text-red-500"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round">  <path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.66 0H14a2 2 0 0 1 2 2v3.34l1 1L23 7v10" />  <line x1="1" y1="1" x2="23" y2="23" /></svg>
-                ) : (
-                    <svg class="h-8 w-8 text-blue-500"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round">  <polygon points="23 7 16 12 23 17 23 7" />  <rect x="1" y="5" width="15" height="14" rx="2" ry="2" /></svg>
-                    
-                )}
-              </button>
-              <button
-                className="p-2 rounded-full bg-red-600 hover:bg-red-500 focus:outline-none"
-                onClick={handleCallEnd}
-              >
-                <svg
-                  className="h-6 w-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                  />
-                </svg>
-              </button>
-            </div>
-          </div>
-        )}
-        <div className="flex justify-center space-x-4">
-          {myStream && !callEstablished && (
+
+      {/* Control Bar */}
+      <div className="bg-black/50 backdrop-blur-sm py-4">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-center space-x-8">
+            {/* Video Toggle */}
             <button
-              className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 focus:outline-none"
+              className="p-3 rounded-full bg-gray-700 hover:bg-gray-600 focus:outline-none transition-colors"
+              onClick={handleHideVideo}
+            >
+              {isVideoHidden ? (
+                <svg className="h-6 w-6 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.66 0H14a2 2 0 0 1 2 2v3.34l1 1L23 7v10" />
+                  <line x1="1" y1="1" x2="23" y2="23" />
+                </svg>
+              ) : (
+                <svg className="h-6 w-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="23 7 16 12 23 17 23 7" />
+                  <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                </svg>
+              )}
+            </button>
+
+            {/* Audio Toggle */}
+            <button
+              className="p-3 rounded-full bg-gray-700 hover:bg-gray-600 focus:outline-none transition-colors"
+              onClick={handleMuteAudio}
+            >
+              {isMuted ? (
+                <svg className="h-6 w-6 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="1" y1="1" x2="23" y2="23" />
+                  <path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6" />
+                  <path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23" />
+                </svg>
+              ) : (
+                <svg className="h-6 w-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                </svg>
+              )}
+            </button>
+
+            {/* Leave Call */}
+            <button
+              className="p-3 rounded-full bg-red-600 hover:bg-red-500 focus:outline-none transition-colors"
+              onClick={handleCallEnd}
+            >
+              <svg className="h-6 w-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.42 19.42 0 0 1-3.33-2.67m-2.67-3.34a19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91" />
+                <line x1="23" y1="1" x2="1" y2="23" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Connection Controls */}
+      {!callEstablished && (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 flex space-x-4">
+          {myStream && (
+            <button
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white transition-colors"
               onClick={sendStreams}
             >
               Send Stream
             </button>
           )}
-          {remoteSocketId && !callEstablished && (
+          {remoteSocketId && (
             <button
-              className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 focus:outline-none"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white transition-colors"
               onClick={handleCallUser}
             >
               Call
             </button>
           )}
         </div>
-      </div>
+      )}
     </div>
   );
 };
