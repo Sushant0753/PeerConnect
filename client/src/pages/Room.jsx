@@ -21,6 +21,11 @@ const RoomPage = () => {
   }, [])
 
   const handleCallUser = useCallback( async()=> {
+    // Replace this line
+    // const stream = await navigator.mediaDevices.getUserMedia({
+    //   audio: true, video: true
+    // });
+    //with the code below
     const stream = await navigator.mediaDevices.getUserMedia({
       audio: {
         echoCancellation: true,
@@ -36,6 +41,8 @@ const RoomPage = () => {
     setIsDisconnected(false);
   }, [remoteSocketId, socket])
 
+
+  //console.logging out
   const logStreamSettings = (stream) => {
     const audioTrack = stream.getAudioTracks()[0];
     console.log('Audio Track settings:', audioTrack.getSettings());
@@ -45,6 +52,11 @@ const RoomPage = () => {
 
   const handleIncomingCall = useCallback(async ({from, offer})=> {
     setRemoteSocketId(from);
+    // Replace this line
+    // const stream = await navigator.mediaDevices.getUserMedia({
+    //   audio: true, video: true
+    // });
+    //with the line below
     const stream = await navigator.mediaDevices.getUserMedia({
       audio: {
         echoCancellation: true,
@@ -53,7 +65,7 @@ const RoomPage = () => {
       },
       video: true
     });
-    logStreamSettings(stream);
+    logStreamSettings(stream); //console.log
     setMyStream(stream);
     setIsDisconnected(false);
     console.log(`Incoming Call`, from, offer);

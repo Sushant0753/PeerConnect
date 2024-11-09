@@ -10,6 +10,7 @@ class PeerService {
             ],
           },
         ],
+        //echo-fix
         sdpSemantics: 'unified-plan',
         rtcAudioJitter: {
         initial_delay: 50
@@ -27,6 +28,7 @@ class PeerService {
           googHighpassFilter: {exact: true},
           googTypingNoiseDetection: {exact: true}
         }
+        //echo-fix
       });
     }
   }
