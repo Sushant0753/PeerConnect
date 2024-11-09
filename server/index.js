@@ -8,7 +8,7 @@ const server = http.createServer((req, res) => {
 
 const io = new Server(server, {
     cors: {
-        origin: ["/socket.io/"],
+        origin: ["https://peer-connect-1otf.vercel.app/socket.io/"],
         withCredentials : true
     }
 });
