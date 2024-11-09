@@ -138,7 +138,6 @@ const RoomPage = () => {
                         playing
                         width="100%"
                         height="100%"
-                        
                         url={remoteStream}
                         style={{ transform: 'scaleX(-1)' }}
                     />
@@ -163,7 +162,6 @@ const RoomPage = () => {
                         playing
                         width="100%"
                         height="100%"
-                        
                         url={myStream}
                         style={{ transform: 'scaleX(-1)' }}
                     />
