@@ -129,138 +129,131 @@ const RoomPage = () => {
 
   return (
     <div className="flex flex-col h-screen bg-gray-900">
-      {/* Main content area - using grid for better control */}
-      <div className="flex-1 grid place-items-center p-4 overflow-hidden">
-        <div className="relative w-full h-full max-w-5xl mx-auto">
-          {/* Remote Stream Container */}
-          <div className="w-full h-full flex items-center justify-center">
-            {remoteStream ? (
-              <div className="relative w-full pt-[56.25%]">
-                <div className="absolute inset-0">
-                  <ReactPlayer
-                    playing
-                    width="100%"
-                    height="100%"
-                    url={remoteStream}
-                    style={{ transform: 'scaleX(-1)' }}
-                    className="rounded-lg"
-                  />
-                </div>
-              </div>
-            ) : (
-              <div className="text-white text-xl text-center">
-                {isDisconnected ? (
-                  <div className="space-y-2">
-                    <p className="text-red-500">Call Disconnected</p>
-                    <p className="text-sm text-gray-400">The call has ended</p>
-                  </div>
+        {/* Main content area */}
+        <div className="relative flex-1 w-full">
+            {/* Remote Stream or Message */}
+            <div className="absolute inset-0 flex items-center justify-center">
+                {remoteStream ? (
+                    <ReactPlayer
+                        playing
+                        width="100%"
+                        height="100%"
+                        url={remoteStream}
+                        style={{ transform: 'scaleX(-1)' }}
+                    />
                 ) : (
-                  "Waiting for connection..."
+                    <div className="text-white text-xl">
+                        {isDisconnected ? (
+                            <div className="text-center space-y-2">
+                                <p className="text-red-500">Call Disconnected</p>
+                                <p className="text-sm text-gray-400">The call has ended</p>
+                            </div>
+                        ) : (
+                            "Waiting for connection..."
+                        )}
+                    </div>
                 )}
-              </div>
-            )}
-          </div>
-
-          {/* PiP Local Stream */}
-          {myStream && (
-            <div className="absolute bottom-4 right-4 w-1/4 min-w-[160px] max-w-[240px]">
-              <div className="relative pt-[56.25%] rounded-lg overflow-hidden shadow-lg">
-                <div className="absolute inset-0">
-                  <ReactPlayer
-                    playing
-                    width="100%"
-                    height="100%"
-                    url={myStream}
-                    style={{ transform: 'scaleX(-1)' }}
-                  />
-                </div>
-              </div>
             </div>
-          )}
-        </div>
-      </div>
 
-      {/* Control Bar */}
-      <div className="bg-black/50 backdrop-blur-sm py-4 px-4 md:px-0">
-        <div className="container mx-auto">
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            {/* Connection Controls */}
-            {!callEstablished && !streamSent && (
-              <>
-                {myStream && (
-                  <button
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white transition-colors"
-                    onClick={sendStreams}
-                  >
-                    Send Stream
-                  </button>
-                )}
-                {remoteSocketId && !myStream && (
-                  <button
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white transition-colors"
-                    onClick={handleCallUser}
-                  >
-                    Call
-                  </button>
-                )}
-              </>
+            {/* Local Stream PiP */}
+            {myStream && (
+                <div className="absolute bottom-20 right-4 w-48 rounded-lg overflow-hidden shadow-lg">
+                    <ReactPlayer
+                        playing
+                        width="100%"
+                        height="100%"
+                        url={myStream}
+                        style={{ transform: 'scaleX(-1)' }}
+                    />
+                </div>
             )}
-
-            {/* Video Toggle */}
-            <button
-              className="p-3 rounded-full bg-gray-700 hover:bg-gray-600 focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              onClick={handleHideVideo}
-              disabled={!myStream}
-            >
-              {isVideoHidden ? (
-                <svg className="h-6 w-6 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.66 0H14a2 2 0 0 1 2 2v3.34l1 1L23 7v10" />
-                  <line x1="1" y1="1" x2="23" y2="23" />
-                </svg>
-              ) : (
-                <svg className="h-6 w-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polygon points="23 7 16 12 23 17 23 7" />
-                  <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
-                </svg>
-              )}
-            </button>
-
-            {/* Audio Toggle */}
-            <button
-              className="p-3 rounded-full bg-gray-700 hover:bg-gray-600 focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              onClick={handleMuteAudio}
-              disabled={!myStream}
-            >
-              {isMuted ? (
-                <svg className="h-6 w-6 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="1" y1="1" x2="23" y2="23" />
-                  <path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6" />
-                  <path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23" />
-                </svg>
-              ) : (
-                <svg className="h-6 w-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
-                  <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-                </svg>
-              )}
-            </button>
-
-            {/* Leave Call */}
-            <button
-              className="p-3 rounded-full bg-red-600 hover:bg-red-500 focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              onClick={handleCallEnd}
-              disabled={!myStream}
-            >
-              <svg className="h-6 w-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.42 19.42 0 0 1-3.33-2.67m-2.67-3.34a19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91" />
-                <line x1="23" y1="1" x2="1" y2="23" />
-              </svg>
-            </button>
-          </div>
         </div>
-      </div>
+
+        {/* Control Bar */}
+        <div className="bg-black/50 backdrop-blur-sm py-4">
+            <div className="container mx-auto">
+                <div className="flex items-center justify-center gap-4">
+
+                  {/* Initial Call Controls */}
+                  {!callEstablished && !streamSent && (
+                        <>
+                            {myStream && (
+                                <button
+                                    className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white transition-colors"
+                                    onClick={sendStreams}
+                                >
+                                    Send Stream
+                                </button>
+                            )}
+                            {remoteSocketId && !myStream && (
+                                <button
+                                    className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white transition-colors"
+                                    onClick={handleCallUser}
+                                >
+                                    Call
+                                </button>
+                            )}
+                        </>
+                    )}
+
+                    
+                    {/* Video Toggle */}
+                    <button
+                        className="p-3 rounded-full bg-gray-700 hover:bg-gray-600 focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        onClick={handleHideVideo}
+                        disabled={!myStream}
+                    >
+                        {isVideoHidden ? (
+                            <svg className="h-6 w-6 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.66 0H14a2 2 0 0 1 2 2v3.34l1 1L23 7v10" />
+                                <line x1="1" y1="1" x2="23" y2="23" />
+                            </svg>
+                        ) : (
+                            <svg className="h-6 w-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <polygon points="23 7 16 12 23 17 23 7" />
+                                <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                            </svg>
+                        )}
+                    </button>
+
+                    {/* Audio Toggle */}
+                    <button
+                        className="p-3 rounded-full bg-gray-700 hover:bg-gray-600 focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        onClick={handleMuteAudio}
+                        disabled={!myStream}
+                    >
+                        {isMuted ? (
+                            <svg className="h-6 w-6 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="1" y1="1" x2="23" y2="23" />
+                                <path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6" />
+                                <path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23" />
+                            </svg>
+                        ) : (
+                            <svg className="h-6 w-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                                <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                            </svg>
+                        )}
+                    </button>
+
+                    
+
+                    {/* Leave Call */}
+                    <button
+                        className="p-3 rounded-full bg-red-600 hover:bg-red-500 focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        onClick={handleCallEnd}
+                        disabled={!myStream}
+                    >
+                        <svg className="h-6 w-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.42 19.42 0 0 1-3.33-2.67m-2.67-3.34a19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91" />
+                            <line x1="23" y1="1" x2="1" y2="23" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
-  );
+);
 };
 
 export default RoomPage;
