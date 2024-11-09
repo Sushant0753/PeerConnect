@@ -4,43 +4,67 @@ import ReactPlayer from "react-player";
 import peer from "../service/peer";
 
 const RoomPage = () => {
-    const { socket } = useSocket();
-    const [remoteSocketId, setRemoteSocketId] = useState(null);
-    const [myStream, setMyStream] = useState();
-    const [remoteStream, setRemoteStream] = useState();
-    const [isMuted, setIsMuted] = useState(false);
-    const [isVideoHidden, setIsVideoHidden] = useState(false);
-    const [callEstablished, setCallEstablished] = useState(false);
-    const [streamSent, setStreamSent] = useState(false);
-    const [isDisconnected, setIsDisconnected] = useState(false);
+  const { socket } = useSocket();
+  const [remoteSocketId, setRemoteSocketId] = useState(null);
+  const [myStream, setMyStream] = useState();
+  const [remoteStream, setRemoteStream] = useState();
+  const [isMuted, setIsMuted] = useState(false);
+  const [isVideoHidden, setIsVideoHidden] = useState(false);
+  const [callEstablished, setCallEstablished] = useState(false);
+  const [streamSent, setStreamSent] = useState(false);
+  const [isDisconnected, setIsDisconnected] = useState(false);
 
-  const handleNewUserJoined = useCallback(({email, id}) =>{
-    console.log(`Email ${email} joined the room`);
-    setRemoteSocketId(id);
-    setIsDisconnected(false);
-  }, [])
+  const getMediaStreamWithConstraints = async () => {
+    const constraints = {
+        audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
+            sampleRate: 48000,
+            channelCount: 1,
+        },
+        video: true
+    };
 
-  const handleCallUser = useCallback( async()=> {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      audio: true, video: true
-    });
-    const offer = await peer.getOffer();
-    socket.emit("user-call", {to: remoteSocketId, offer});
-    setMyStream(stream);
-    setIsDisconnected(false);
-  }, [remoteSocketId, socket])
+    try {
+        return await navigator.mediaDevices.getUserMedia(constraints);
+    } catch (error) {
+        console.error("Error getting media stream:", error);
+        throw error;
+    }
+  };
 
-  const handleIncomingCall = useCallback(async ({from, offer})=> {
-    setRemoteSocketId(from);
-    const stream = await navigator.mediaDevices.getUserMedia({
-      audio: true, video: true
-    });
-    setMyStream(stream);
-    setIsDisconnected(false);
-    console.log(`Incoming Call`, from, offer);
-    const ans = await peer.getAnswer(offer);
-    socket.emit("call-accepted", {to: from, ans});
-  }, [socket])
+  const handleNewUserJoined = useCallback(({email, id}) => {
+      console.log(`Email ${email} joined the room`);
+      setRemoteSocketId(id);
+      setIsDisconnected(false);
+    }, []);
+
+  const handleCallUser = useCallback(async () => {
+      try {
+          const stream = await getMediaStreamWithConstraints();
+          const offer = await peer.getOffer();
+          socket.emit("user-call", {to: remoteSocketId, offer});
+          setMyStream(stream);
+          setIsDisconnected(false);
+      } catch (error) {
+          console.error("Error in handleCallUser:", error);
+      }
+    } , [remoteSocketId, socket]);
+
+  const handleIncomingCall = useCallback(async ({from, offer}) => {
+      try {
+          setRemoteSocketId(from);
+          const stream = await getMediaStreamWithConstraints();
+          setMyStream(stream);
+          setIsDisconnected(false);
+          console.log(`Incoming Call`, from, offer);
+          const ans = await peer.getAnswer(offer);
+          socket.emit("call-accepted", {to: from, ans});
+      } catch (error) {
+          console.error("Error in handleIncomingCall:", error);
+      }
+  }, [socket]);
 
   const sendStreams = useCallback(() => {
     for (const track of myStream.getTracks()){
