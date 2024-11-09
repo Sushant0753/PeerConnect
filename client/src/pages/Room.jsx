@@ -22,19 +22,38 @@ const RoomPage = () => {
 
   const handleCallUser = useCallback( async()=> {
     const stream = await navigator.mediaDevices.getUserMedia({
-      audio: true, video: true
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true
+      },
+      video: true
     });
+    logStreamSettings(stream);
     const offer = await peer.getOffer();
     socket.emit("user-call", {to: remoteSocketId, offer});
     setMyStream(stream);
     setIsDisconnected(false);
   }, [remoteSocketId, socket])
 
+  const logStreamSettings = (stream) => {
+    const audioTrack = stream.getAudioTracks()[0];
+    console.log('Audio Track settings:', audioTrack.getSettings());
+    console.log('Audio Track constraints:', audioTrack.getConstraints());
+  };
+  
+
   const handleIncomingCall = useCallback(async ({from, offer})=> {
     setRemoteSocketId(from);
     const stream = await navigator.mediaDevices.getUserMedia({
-      audio: true, video: true
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true
+      },
+      video: true
     });
+    logStreamSettings(stream);
     setMyStream(stream);
     setIsDisconnected(false);
     console.log(`Incoming Call`, from, offer);
