@@ -14,8 +14,8 @@ class PeerService {
         rtcAudioJitter: {
         initial_delay: 50
         },
-        bundlePolicy: 'max-bundle',
-        rtcpMuxPolicy: 'require',
+        // bundlePolicy: 'max-bundle',
+        // rtcpMuxPolicy: 'require',
         // Audio processing
         audio: {
           echoCancellation: {exact: true},
