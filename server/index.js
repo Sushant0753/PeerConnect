@@ -3,7 +3,7 @@ const http = require('http');
 
 const server = http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('Socket.io server is running');
+    res.end(`Socket.io server is running on port ${process.env.PORT || 8000}`);
 });
 
 const io = new Server(server, {
