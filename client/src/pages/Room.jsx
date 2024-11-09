@@ -196,6 +196,28 @@ const RoomPage = () => {
               )}
             </button>
 
+            {/* Connection Controls */}
+            {!callEstablished && (
+              <>
+                {myStream && (
+                  <button
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white transition-colors"
+                    onClick={sendStreams}
+                  >
+                    Send Stream
+                  </button>
+                )}
+                {remoteSocketId && (
+                  <button
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white transition-colors"
+                    onClick={handleCallUser}
+                  >
+                    Call
+                  </button>
+                )}
+              </>
+            )}
+
             {/* Leave Call */}
             <button
               className="p-3 rounded-full bg-red-600 hover:bg-red-500 focus:outline-none transition-colors"
@@ -209,28 +231,6 @@ const RoomPage = () => {
           </div>
         </div>
       </div>
-
-      {/* Connection Controls */}
-      {!callEstablished && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 flex space-x-4">
-          {myStream && (
-            <button
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white transition-colors"
-              onClick={sendStreams}
-            >
-              Send Stream
-            </button>
-          )}
-          {remoteSocketId && (
-            <button
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white transition-colors"
-              onClick={handleCallUser}
-            >
-              Call
-            </button>
-          )}
-        </div>
-      )}
     </div>
   );
 };
