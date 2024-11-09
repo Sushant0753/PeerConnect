@@ -123,40 +123,49 @@ const RoomPage = () => {
   }, [socket, handleNewUserJoined, handleIncomingCall, handleCallAccepted, handleIncomingNego, handleNegoFinal]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-900">
-      {/* Main content */}
-      <div className="flex-1 relative overflow-hidden p-4">
-        <div className="h-full w-full flex items-center justify-center">
-          {/* Remote Stream */}
-          {remoteStream ? (
-            <div className="w-full h-full max-w-6xl mx-auto aspect-video">
-              <ReactPlayer
-                playing
-                height="100%"
-                width="100%"
-                url={remoteStream}
-                style={{ transform: 'scaleX(-1)' }}
-                className="object-cover rounded-lg"
-              />
+    <div className="flex flex-col h-screen bg-gray-900">
+      {/* Main content area - using grid for better control */}
+      <div className="flex-1 grid place-items-center p-4 overflow-hidden">
+        <div className="relative w-full h-full max-w-5xl mx-auto">
+          {/* Remote Stream Container */}
+          <div className="w-full h-full flex items-center justify-center">
+            {remoteStream ? (
+              <div className="relative w-full pt-[56.25%]">
+                <div className="absolute inset-0">
+                  <ReactPlayer
+                    playing
+                    width="100%"
+                    height="100%"
+                    url={remoteStream}
+                    style={{ transform: 'scaleX(-1)' }}
+                    className="rounded-lg"
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="text-white text-xl text-center">
+                Waiting for connection...
+              </div>
+            )}
+          </div>
+
+          {/* PiP Local Stream */}
+          {myStream && (
+            <div className="absolute bottom-4 right-4 w-1/4 min-w-[160px] max-w-[240px]">
+              <div className="relative pt-[56.25%] rounded-lg overflow-hidden shadow-lg">
+                <div className="absolute inset-0">
+                  <ReactPlayer
+                    playing
+                    width="100%"
+                    height="100%"
+                    url={myStream}
+                    style={{ transform: 'scaleX(-1)' }}
+                  />
+                </div>
+              </div>
             </div>
-          ) : (
-            <div className="text-white text-xl">Waiting for connection...</div>
           )}
         </div>
-        
-        {/* My Stream (Picture-in-Picture) */}
-        {myStream && (
-          <div className="absolute bottom-4 right-4 w-1/4 max-w-xs min-w-48 aspect-video rounded-lg overflow-hidden shadow-lg">
-            <ReactPlayer
-              playing
-              height="100%"
-              width="100%"
-              url={myStream}
-              style={{ transform: 'scaleX(-1)' }}
-              className="object-cover"
-            />
-          </div>
-        )}
       </div>
 
       {/* Control Bar */}
@@ -187,7 +196,7 @@ const RoomPage = () => {
 
             {/* Video Toggle */}
             <button
-              className="p-3 rounded-full bg-gray-700 hover:bg-gray-600 focus:outline-none transition-colors"
+              className="p-3 rounded-full bg-gray-700 hover:bg-gray-600 focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleHideVideo}
               disabled={!myStream}
             >
@@ -206,7 +215,7 @@ const RoomPage = () => {
 
             {/* Audio Toggle */}
             <button
-              className="p-3 rounded-full bg-gray-700 hover:bg-gray-600 focus:outline-none transition-colors"
+              className="p-3 rounded-full bg-gray-700 hover:bg-gray-600 focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleMuteAudio}
               disabled={!myStream}
             >
@@ -226,7 +235,7 @@ const RoomPage = () => {
 
             {/* Leave Call */}
             <button
-              className="p-3 rounded-full bg-red-600 hover:bg-red-500 focus:outline-none transition-colors"
+              className="p-3 rounded-full bg-red-600 hover:bg-red-500 focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleCallEnd}
               disabled={!myStream}
             >
