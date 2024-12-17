@@ -22,18 +22,18 @@ const RoomPage = () => {
 
   const handleCallUser = useCallback( async()=> {
     // Replace this line
-    // const stream = await navigator.mediaDevices.getUserMedia({
-    //   audio: true, video: true
-    // });
-    //with the code below
     const stream = await navigator.mediaDevices.getUserMedia({
-      audio: {
-        echoCancellation: true,
-        noiseSuppression: true,
-        autoGainControl: true
-      },
-      video: true
+      audio: true, video: true
     });
+    //with the code below
+    // const stream = await navigator.mediaDevices.getUserMedia({
+    //   audio: {
+    //     echoCancellation: true,
+    //     noiseSuppression: true,
+    //     autoGainControl: true
+    //   },
+    //   video: true
+    // });
     logStreamSettings(stream);
     const offer = await peer.getOffer();
     socket.emit("user-call", {to: remoteSocketId, offer});
